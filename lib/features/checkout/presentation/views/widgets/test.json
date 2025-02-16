@@ -1,0 +1,16 @@
+{
+  "items": [
+    {
+      "name": "Apple",
+      "quantity": 4,
+      "price": "5",
+      "currency": "USD"
+    },
+    {
+      "name": "Pineapple",
+      "quantity": 5,
+      "price": "10",
+      "currency": "USD"
+    }
+  ]
+}

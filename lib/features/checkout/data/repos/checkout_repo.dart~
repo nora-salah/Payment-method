@@ -1,0 +1,18 @@
+import 'package:dartz/dartz.dart';
+
+import '../models/payment_intent_input_model.dart';
+
+abstract class CheckoutRepo {
+  Future<Either<Failure, void>> makePayment(
+      {required PaymentIntentInputModel paymentIntentInputModel});
+}
+
+abstract class Failure {
+  final String errorMessage;
+
+  Failure({required this.errorMessage}); // Failure
+}
+
+abstract class ServerFailure extends Failure {
+  ServerFailure({required super.errorMessage}); // ServerFailure
+}
