@@ -46,13 +46,18 @@ class CustomButtonBlocConsumer extends StatelessWidget {
               // BlocProvider.of<PaymentCubit>(context).makePayment(
               //     paymentIntentInputModel: paymentIntentInputModel);
 
-              var transactionData = getTransactionData();
-              executePaypalPayment(context, transactionData);
+              // var transactionData = getTransactionData();
+              // executePaypalPayment(context, transactionData);
             },
             isLoading: state is PaymentLoading ? true : false,
             text: 'Continue');
       },
     );
+  }
+
+  void _processPaypalPayment(BuildContext context) {
+    var transactionsData = getTransactionData();
+    executePaypalPayment(context, transactionsData);
   }
 
   void executePaypalPayment(BuildContext context,

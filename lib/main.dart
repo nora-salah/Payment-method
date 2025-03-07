@@ -25,3 +25,4 @@ class CheckoutApp extends StatelessWidget {
 //// here i want to handle continue btn to execute 2 different operaion 1 with paypal 2 with stripe know it execute stripe scuccess
 // in 69 i have error with Map< Sting, String> take String do not Know where
 // from here git test account https://developer.paypal.com/dashboard/dashboard/sandbox
+//I/flutter (10051): An error occurred: type '_Map<String, String>' is not a subtype of type 'String'

@@ -13,6 +13,40 @@ class StripeService {
 
   Future<PaymentsIntentModel> createPaymentIntent(
       PaymentIntentInputModel paymentIntentInputModel) async {
+    try {
+      var response = await apiService.post(
+        body: paymentIntentInputModel.toJson(),
+        url: 'https://api.stripe.com/v1/payment_intents',
+        token: ApiKeys.secretKey,
+        contentType: Headers.formUrlEncodedContentType,
+      );
+
+      var paymentIntentModel = PaymentsIntentModel.fromJson(response.data);
+      return paymentIntentModel;
+    } catch (e) {
+      throw Exception('Error creating payment intent: $e');
+    }
+  }
+
+  Future initPaymentSheet(
+      {required InitPaymentSheetInputModel initPaymentSheetInputModel}) async {
+    try {
+      await Stripe.instance.initPaymentSheet(
+        paymentSheetParameters: SetupPaymentSheetParameters(
+            paymentIntentClientSecret: initPaymentSheetInputModel.clientSecret,
+            customerEphemeralKeySecret:
+                initPaymentSheetInputModel.ephemeralKeySecret,
+            customerId: initPaymentSheetInputModel.customerId,
+            merchantDisplayName: 'Ahmed Elnemr'),
+      );
+    } catch (e) {
+      throw Exception('Error initializing payment sheet: $e');
+    }
+  }
+
+/*
+  Future<PaymentsIntentModel> createPaymentIntent(
+      PaymentIntentInputModel paymentIntentInputModel) async {
     var response = await apiService.post(
       body: paymentIntentInputModel.toJson(),
       url: 'https://api.stripe.com/v1/payment_intents',
@@ -21,6 +55,8 @@ class StripeService {
     var paymentIntentModel = PaymentsIntentModel.fromJson(response.data);
     return paymentIntentModel;
   }
+
+
 
   Future initPaymentSheet(
       {required InitPaymentSheetInputModel initPaymentSheetInputModel}) async {
@@ -34,11 +70,59 @@ class StripeService {
       ),
     );
   }
+*/
 
   Future displayPaymentSheet() async {
     await Stripe.instance.presentPaymentSheet();
   }
 
+  Future makePayment(
+      {required PaymentIntentInputModel paymentIntentInputModel}) async {
+    try {
+      var paymentIntentModel =
+          await createPaymentIntent(paymentIntentInputModel);
+
+      var emphemeralSecretKeyModel = await createEmphemeralKey(
+          customerId: paymentIntentInputModel.customerId);
+
+      var initPaymentSheetInputModel = InitPaymentSheetInputModel(
+        customerId: paymentIntentInputModel.customerId,
+        clientSecret: paymentIntentModel.clientSecret!,
+        ephemeralKeySecret: emphemeralSecretKeyModel.secret!,
+      );
+
+      await initPaymentSheet(
+          initPaymentSheetInputModel: initPaymentSheetInputModel);
+
+      await displayPaymentSheet();
+    } catch (e) {
+      throw Exception('Payment failed: $e');
+    }
+  }
+
+  Future<EphemeralKeyModel> createEmphemeralKey(
+      {required String customerId}) async {
+    try {
+      var response = await apiService.post(
+        body: {'customer': customerId},
+        url: 'https://api.stripe.com/v1/ephemeral_keys',
+        token: ApiKeys.secretKey,
+        contentType: Headers.formUrlEncodedContentType,
+        headers: {
+          'Authorization': "Bearer ${ApiKeys.secretKey}",
+          'Stripe-Version': '2023-10-16',
+        },
+      );
+
+      var ephemeralKeyModel = EphemeralKeyModel.fromJson(response.data);
+      return ephemeralKeyModel;
+    } catch (e) {
+      print(e);
+      throw Exception('Error creating Emphemeral Key: $e');
+    }
+  }
+}
+/*
   Future makePayment(
       {required PaymentIntentInputModel paymentIntentInputModel}) async {
     var paymentsIntentModel =
@@ -70,7 +154,7 @@ class StripeService {
     return ephemeralKey;
   }
 }
-
+*/
 //same code using try() catch
 /*
 class StripeService {
